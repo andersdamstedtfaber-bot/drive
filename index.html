@@ -11,11 +11,14 @@
   <meta name="mobile-web-app-capable" content="yes">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { overscroll-behavior: none; }
     body {
       background: #c2c7b0;
       font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       color: #1e2214;
       min-height: 100vh;
+      overscroll-behavior: none;
+      touch-action: pan-y;
     }
     .app { max-width: 600px; margin: 0 auto; min-height: 100vh; }
 
@@ -50,8 +53,8 @@
     /* ── SATS ── */
     .rate-section { background: #c2c7b0; padding: 0 20px 20px; }
     .rate-label-row { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; margin-bottom: 8px; }
-    .rate-track { background: rgba(30,34,20,0.12); border-radius: 2px; height: 4px; }
-    .rate-fill  { background: #1e2214; height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+    .rate-track { background: rgba(30,34,20,0.18); border-radius: 3px; height: 7px; }
+    .rate-fill  { background: #d4673d; height: 100%; border-radius: 3px; transition: width 0.5s ease; }
 
     /* ── HURTIG SEKTIONER ── */
     .quick-section        { background: #d4673d; padding: 18px 20px; }
@@ -100,19 +103,18 @@
     .btn-cancel:hover { background: rgba(30,34,20,0.18); }
 
     /* ── MÅNED ── */
-    .month-section { background: #3a3f2e; padding: 18px 20px; }
-    .month-section .block-label { color: rgba(255,255,255,0.4); }
+    .month-section { background: #3a3f2e; padding: 12px 20px 18px; }
     .month-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .month-nav-row .month-name { font-size: clamp(16px,5vw,20px); font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .month-nav-row .month-name { font-size: clamp(14px,4vw,17px); font-weight: 700; color: #fff; letter-spacing: -0.3px; }
     .nav-btns { display: flex; gap: 6px; }
     .nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; padding: 6px 12px; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 14px; }
     .nav-btn:hover { background: rgba(255,255,255,0.15); }
-    .month-stats { display: flex; }
-    .month-stat { flex: 1; }
-    .month-stat + .month-stat { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 16px; margin-left: 16px; }
-    .month-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
-    .month-stat-val   { font-size: clamp(22px,6vw,28px); font-weight: 700; color: #fff; letter-spacing: -1px; }
-    .month-stat-val span { font-size: clamp(16px,4vw,20px); color: rgba(255,255,255,0.4); font-weight: 300; }
+    .year-stats { display: flex; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; gap: 0; }
+    .year-stat { flex: 1; }
+    .year-stat + .year-stat { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 16px; margin-left: 16px; }
+    .year-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .year-stat-val { font-size: clamp(18px,5vw,22px); font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+    .year-stat-val span { font-size: clamp(13px,3.5vw,16px); color: rgba(255,255,255,0.4); font-weight: 300; }
 
     /* ── FORM ── */
     .form-section { background: #c2c7b0; padding: 18px 20px; border-top: 1px solid rgba(30,34,20,0.1); }
@@ -161,14 +163,23 @@
       cursor: pointer; white-space: nowrap;
     }
     .btn-add:hover { background: #2e3420; }
+    .btn-add-full { width: 100%; padding: 14px; font-size: 13px; margin-top: 4px; }
 
-/* ── TABEL ── */
+    .settings-bar { background: #c2c7b0; padding: 10px 20px 30px; text-align: center; }
+    .btn-settings { background: none; border: 1px solid rgba(30,34,20,0.2); border-radius: 6px; padding: 9px 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; cursor: pointer; }
+    .btn-settings:hover { background: rgba(30,34,20,0.07); }
+    .settings-popup { width: 340px; }
+    .settings-year-label { font-size: 15px; font-weight: 800; color: #1e2214; margin-bottom: 18px; }
+    .settings-group { margin-bottom: 14px; }
+    .settings-label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; margin-bottom: 5px; }
+
+    /* ── TABEL ── */
     .table-section { background: #c2c7b0; padding: 0 0 60px; }
     .table-header-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; border-top: 1px solid rgba(30,34,20,0.12); }
     .table-header-row .block-label { color: #5a5f4a; margin-bottom: 0; }
     .btn-export { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; background: none; border: 1px solid rgba(30,34,20,0.2); border-radius: 4px; padding: 5px 12px; cursor: pointer; }
     .btn-export:hover { background: rgba(30,34,20,0.07); }
-    .trip-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 68px 26px; padding: 10px 20px; border-bottom: 1px solid rgba(30,34,20,0.09); align-items: center; }
+    .trip-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 26px; padding: 10px 20px; border-bottom: 1px solid rgba(30,34,20,0.09); align-items: center; }
     .trip-row.thead { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8a8f7a; padding-bottom: 6px; }
     .trip-row:hover:not(.thead) { background: rgba(30,34,20,0.04); }
     .trip-col { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; font-size: 12px; color: #1e2214; }
@@ -177,7 +188,7 @@
     .trip-del { background: none; border: none; color: #aaa; cursor: pointer; font-size: 14px; text-align: right; padding: 0; line-height: 1; }
     .trip-del:hover { color: #d4673d; }
     .trip-empty { padding: 24px 20px; font-size: 12px; color: #8a8f7a; }
-    .tfoot-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 68px 26px; padding: 12px 20px; border-top: 2px solid rgba(30,34,20,0.2); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .tfoot-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 26px; padding: 12px 20px; border-top: 2px solid rgba(30,34,20,0.2); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
     .tfoot-row .km { text-align: right; }
     .tfoot-row .kr { text-align: right; color: #d4673d; }
 
@@ -186,7 +197,7 @@
       .topbar, .hero, .rate-section, .quick-section, .quick-section-retro,
       .month-section, .form-section, .table-header-row { padding-left: 16px; padding-right: 16px; }
       .hero-amount { font-size: 38px; }
-      .trip-row, .tfoot-row { padding-left: 12px; padding-right: 12px; grid-template-columns: 66px 1fr 1fr 48px 62px 22px; }
+      .trip-row, .tfoot-row { padding-left: 12px; padding-right: 12px; grid-template-columns: 66px 1fr 1fr 48px 22px; }
       .trip-col { font-size: 11px; }
     }
   </style>
@@ -204,19 +215,19 @@
   </div>
 
   <div class="hero">
-    <div class="hero-sublabel">Samlet godtgørelse · året</div>
-    <div class="hero-amount" id="statYearKr">0,00<span> kr</span></div>
+    <div class="hero-sublabel" id="heroMonthLabel">Godtgørelse · denne måned</div>
+    <div class="hero-amount" id="statMonthKr">0,00<span> kr</span></div>
     <div class="hero-rows">
       <div class="hero-row">
-        <div class="hero-row-label">Km kørt i alt</div>
-        <div class="hero-row-val" id="statYearKm">0<span> km</span></div>
+        <div class="hero-row-label">Km denne måned</div>
+        <div class="hero-row-val" id="statMonthKm">0<span> km</span></div>
       </div>
     </div>
   </div>
 
   <div class="rate-section">
     <div class="rate-label-row">
-      <span>Høj sats 3,94 kr/km</span>
+      <span id="rateLabel">Høj sats 3,94 kr/km</span>
       <span id="barLabel">0 / 20.000 km</span>
     </div>
     <div class="rate-track"><div class="rate-fill" id="rateFill" style="width:0%"></div></div>
@@ -243,7 +254,6 @@
   </div>
 
   <div class="month-section">
-    <div class="block-label">Denne måned</div>
     <div class="month-nav-row">
       <div class="month-name" id="monthLabel">—</div>
       <div class="nav-btns">
@@ -251,14 +261,14 @@
         <button class="nav-btn" onclick="nextMonth()">&#8594;</button>
       </div>
     </div>
-    <div class="month-stats">
-      <div class="month-stat">
-        <div class="month-stat-label">Km</div>
-        <div class="month-stat-val" id="statMonthKm">0<span> km</span></div>
+    <div class="year-stats">
+      <div class="year-stat">
+        <div class="year-stat-label">Godtgørelse · året</div>
+        <div class="year-stat-val" id="statYearKr">0,00<span> kr</span></div>
       </div>
-      <div class="month-stat">
-        <div class="month-stat-label">Beløb</div>
-        <div class="month-stat-val" id="statMonthKr">0,00<span> kr</span></div>
+      <div class="year-stat">
+        <div class="year-stat-label">Km kørt i alt</div>
+        <div class="year-stat-val" id="statYearKm">0<span> km</span></div>
       </div>
     </div>
   </div>
@@ -301,9 +311,10 @@
         <div class="form-group-inputs">
           <input class="finput" type="text" id="fPurpose" placeholder="Formål">
           <input class="finput km-input" type="number" id="fKm" placeholder="Km" min="0" step="0.1">
-          <button class="btn-add" onclick="addManual()">+ Tilføj</button>
         </div>
       </div>
+
+      <button class="btn-add btn-add-full" onclick="addManual()">+ Tilføj tur</button>
 
     </div>
   </div>
@@ -318,7 +329,6 @@
       <div class="trip-col">Fra</div>
       <div class="trip-col">Til</div>
       <div class="trip-col km">Km</div>
-      <div class="trip-col kr">Kr</div>
       <div></div>
     </div>
     <div id="tripBody"></div>
@@ -327,9 +337,13 @@
       <div style="font-size:9px;letter-spacing:1px;color:#8a8f7a">I ALT</div>
       <div></div>
       <div class="km" id="footKm"></div>
-      <div class="kr" id="footKr"></div>
       <div></div>
     </div>
+  </div>
+
+  <!-- INDSTILLINGER KNAP -->
+  <div class="settings-bar">
+    <button class="btn-settings" onclick="openSettings()">&#9881; Indstillinger</button>
   </div>
 
 </div>
@@ -347,18 +361,61 @@
   </div>
 </div>
 
+<!-- INDSTILLINGER POPUP -->
+<div class="date-popup-overlay" id="settingsPopup">
+  <div class="date-popup settings-popup">
+    <h3>Indstillinger</h3>
+    <div class="settings-year-label" id="settingsYearLabel"></div>
+
+    <div class="settings-group">
+      <label class="settings-label">Sats under 20.000 km (kr/km)</label>
+      <input type="number" class="finput" id="sRate1" step="0.01" min="0">
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">Sats over 20.000 km (kr/km)</label>
+      <input type="number" class="finput" id="sRate2" step="0.01" min="0">
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">Tidligere kørt i <span id="sKmYear"></span> (km fra inden app'en)</label>
+      <input type="number" class="finput" id="sStartKm" step="1" min="0">
+    </div>
+
+    <div class="date-popup-btns" style="margin-top:18px">
+      <button class="btn-cancel" onclick="closeSettings()">Annuller</button>
+      <button class="btn-confirm" onclick="saveSettings()">Gem</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e2214;color:#c2c7b0;padding:11px 22px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.5px;box-shadow:0 4px 20px rgba(0,0,0,0.25);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:9999;"></div>
 
 <script>
-var RATE1=3.94,RATE2=2.28,THRESHOLD=20000;
+var THRESHOLD=20000;
+var rateCache={};
+function loadRates(y){
+  if(rateCache[y])return rateCache[y];
+  try{var v=localStorage.getItem('koreregnskab_rates_'+y);if(v){rateCache[y]=JSON.parse(v);return rateCache[y];}}catch(e){}
+  rateCache[y]={r1:3.94,r2:2.28};
+  return rateCache[y];
+}
+function saveRates(y,r1,r2){rateCache[y]={r1:r1,r2:r2};try{localStorage.setItem('koreregnskab_rates_'+y,JSON.stringify({r1:r1,r2:r2}));}catch(e){}}
+var RATE1=loadRates(new Date().getFullYear()).r1;
+var RATE2=loadRates(new Date().getFullYear()).r2;
 var MONTHS_DA=['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
 var now=new Date(),viewYear=now.getFullYear(),viewMonth=now.getMonth();
 var memStore=null;
 
 function load(){try{var r=localStorage.getItem('koreregnskab_v1');if(r)memStore=JSON.parse(r);return memStore?JSON.parse(JSON.stringify(memStore)):[];}catch(e){return memStore?JSON.parse(JSON.stringify(memStore)):[];}}
 function save(t){memStore=JSON.parse(JSON.stringify(t));try{localStorage.setItem('koreregnskab_v1',JSON.stringify(t));}catch(e){}}
-function loadStartKm(y){try{var v=localStorage.getItem('koreregnskab_start_'+y);return v?parseFloat(v)||0:0;}catch(e){return 0;}}
-function saveStartKm(y,km){try{localStorage.setItem('koreregnskab_start_'+y,km);}catch(e){}}
+var startKmDefaults={2026:11533};
+var startKmCache={};
+function loadStartKm(y){
+  if(startKmCache[y]!==undefined)return startKmCache[y];
+  try{var v=localStorage.getItem('koreregnskab_start_'+y);if(v!==null){startKmCache[y]=parseFloat(v)||0;return startKmCache[y];}}catch(e){}
+  startKmCache[y]=startKmDefaults[y]||0;
+  return startKmCache[y];
+}
+function saveStartKm(y,km){startKmCache[y]=km;try{localStorage.setItem('koreregnskab_start_'+y,km);}catch(e){}}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function pad(n){return n<10?'0'+n:''+n;}
 function formatDate(s){if(!s)return '';var p=s.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
@@ -366,7 +423,11 @@ function uid(){return Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function yearTrips(trips,y){return trips.filter(function(t){return t.date&&t.date.startsWith(''+y);}).sort(function(a,b){return a.date.localeCompare(b.date);});}
-function recalcYear(trips,y){var yt=yearTrips(trips,y),cum=loadStartKm(y);yt.forEach(function(t){var km=parseFloat(t.km)||0,b=cum;if(b>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}else{var ov=Math.max(0,(b+km)-THRESHOLD);t.kr=+((km-ov)*RATE1+ov*RATE2).toFixed(2);}cum+=km;});}
+function recalcYear(trips,y){
+  var rates=loadRates(y),r1=rates.r1,r2=rates.r2;
+  var yt=yearTrips(trips,y),cum=loadStartKm(y);
+  yt.forEach(function(t){var km=parseFloat(t.km)||0,b=cum;if(b>=THRESHOLD){t.kr=+(km*r2).toFixed(2);}else{var ov=Math.max(0,(b+km)-THRESHOLD);t.kr=+((km-ov)*r1+ov*r2).toFixed(2);}cum+=km;});
+}
 function fmtKm(n){return Math.round(n).toLocaleString('da-DK');}
 function fmtKr(n){return n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
@@ -384,8 +445,12 @@ function updateAll(){
   document.getElementById('statYearKm').innerHTML=fmtKm(totalKm)+'<span> km</span>';
   document.getElementById('statMonthKm').innerHTML=fmtKm(monthKm)+'<span> km</span>';
   document.getElementById('statMonthKr').innerHTML=fmtKr(monthKr)+'<span> kr</span>';
-  document.getElementById('monthLabel').textContent=MONTHS_DA[viewMonth]+' '+viewYear;
+  var mLabel=MONTHS_DA[viewMonth]+' '+viewYear;
+  document.getElementById('monthLabel').textContent=mLabel;
+  document.getElementById('heroMonthLabel').textContent='Godtgørelse · '+mLabel.toLowerCase();
   var pct=Math.min(100,totalKm/THRESHOLD*100);
+  var yr=loadRates(viewYear);
+  document.getElementById('rateLabel').textContent='Høj sats '+yr.r1.toFixed(2).replace('.',',')+' kr/km';
   document.getElementById('rateFill').style.width=pct+'%';
   document.getElementById('barLabel').textContent=fmtKm(Math.min(totalKm,THRESHOLD))+' / 20.000 km';
   renderTable(mt,monthKm,monthKr);
@@ -401,15 +466,37 @@ function renderTable(mt,monthKm,monthKr){
         '<div class="trip-col">'+esc(t.fromLabel||t.from||'')+'</div>'+
         '<div class="trip-col">'+esc(t.toLabel||t.to||'')+'</div>'+
         '<div class="trip-col km">'+fmtKm(parseFloat(t.km)||0)+' km</div>'+
-        '<div class="trip-col kr">'+fmtKr(t.kr||0)+' kr</div>'+
         '<div><button class="trip-del" onclick="deleteTrip(\''+t.id+'\')" title="Slet">&#10005;</button></div>'+
       '</div>';
     }).join('');
     document.getElementById('footKm').textContent=fmtKm(monthKm)+' km';
-    document.getElementById('footKr').textContent=fmtKr(monthKr)+' kr';
     tfoot.style.display='grid';
   }
 }
+
+function openSettings(){
+  var y=viewYear,rates=loadRates(y);
+  document.getElementById('settingsYearLabel').textContent='År '+y;
+  document.getElementById('sKmYear').textContent=y;
+  document.getElementById('sRate1').value=rates.r1;
+  document.getElementById('sRate2').value=rates.r2;
+  document.getElementById('sStartKm').value=loadStartKm(y)||'';
+  document.getElementById('settingsPopup').classList.add('open');
+}
+function closeSettings(){document.getElementById('settingsPopup').classList.remove('open');}
+function saveSettings(){
+  var y=viewYear;
+  var r1=parseFloat(document.getElementById('sRate1').value);
+  var r2=parseFloat(document.getElementById('sRate2').value);
+  var km=parseFloat(document.getElementById('sStartKm').value)||0;
+  if(!r1||!r2){alert('Udfyld begge satser.');return;}
+  saveRates(y,r1,r2);
+  saveStartKm(y,km);
+  closeSettings();
+  showToast('Indstillinger gemt for '+y);
+  updateAll();
+}
+document.getElementById('settingsPopup').addEventListener('click',function(e){if(e.target===this)closeSettings();});
 
 function applyStartKm(){
   var v=parseFloat(document.getElementById('startKmInput').value)||0;
@@ -648,8 +735,6 @@ function exportMonth(){
 }
 
 document.getElementById('fDate').value=todayStr();
-// Sæt startsaldo for 2026 hvis den ikke allerede er gemt
-if(loadStartKm(2026)===0){saveStartKm(2026,11533);}
 updateAll();
 </script>
 </body>

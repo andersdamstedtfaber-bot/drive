@@ -9,12 +9,11 @@
   <meta name="apple-mobile-web-app-title" content="Køreregnskab">
   <meta name="theme-color" content="#c2c7b0">
   <meta name="mobile-web-app-capable" content="yes">
-  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background: #c2c7b0;
-      font-family: 'Roboto Condensed', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
       color: #1e2214;
       min-height: 100vh;
     }
@@ -163,6 +162,14 @@
     }
     .btn-add:hover { background: #2e3420; }
 
+    .start-km-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0; gap: 10px; }
+    .start-km-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(194,199,176,0.7); white-space: nowrap; }
+    .start-km-inputs { display: flex; align-items: center; gap: 6px; }
+    .start-km-field { width: 80px; padding: 6px 10px; font-size: 12px; text-align: right; }
+    .start-km-unit { font-size: 11px; color: rgba(194,199,176,0.7); font-weight: 700; }
+    .btn-startkm { background: rgba(194,199,176,0.15); color: #c2c7b0; border: 1px solid rgba(194,199,176,0.3); border-radius: 6px; padding: 6px 12px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+    .btn-startkm:hover { background: rgba(194,199,176,0.25); }
+
     /* ── TABEL ── */
     .table-section { background: #c2c7b0; padding: 0 0 60px; }
     .table-header-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; border-top: 1px solid rgba(30,34,20,0.12); }
@@ -221,6 +228,14 @@
       <span id="barLabel">0 / 20.000 km</span>
     </div>
     <div class="rate-track"><div class="rate-fill" id="rateFill" style="width:0%"></div></div>
+    <div class="start-km-row">
+      <label class="start-km-label">Tidligere kørt i <span id="startKmYear"></span></label>
+      <div class="start-km-inputs">
+        <input type="number" id="startKmInput" class="finput start-km-field" placeholder="0" min="0" step="1">
+        <span class="start-km-unit">km</span>
+        <button class="btn-startkm" onclick="applyStartKm()">Gem</button>
+      </div>
+    </div>
   </div>
 
   <!-- HURTIG: dags dato (orange) -->
@@ -358,6 +373,8 @@ var memStore=null;
 
 function load(){try{var r=localStorage.getItem('koreregnskab_v1');if(r)memStore=JSON.parse(r);return memStore?JSON.parse(JSON.stringify(memStore)):[];}catch(e){return memStore?JSON.parse(JSON.stringify(memStore)):[];}}
 function save(t){memStore=JSON.parse(JSON.stringify(t));try{localStorage.setItem('koreregnskab_v1',JSON.stringify(t));}catch(e){}}
+function loadStartKm(y){try{var v=localStorage.getItem('koreregnskab_start_'+y);return v?parseFloat(v)||0:0;}catch(e){return 0;}}
+function saveStartKm(y,km){try{localStorage.setItem('koreregnskab_start_'+y,km);}catch(e){}}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
 function pad(n){return n<10?'0'+n:''+n;}
 function formatDate(s){if(!s)return '';var p=s.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
@@ -365,7 +382,7 @@ function uid(){return Date.now()+'_'+Math.random().toString(36).slice(2,7);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function yearTrips(trips,y){return trips.filter(function(t){return t.date&&t.date.startsWith(''+y);}).sort(function(a,b){return a.date.localeCompare(b.date);});}
-function recalcYear(trips,y){var yt=yearTrips(trips,y),cum=0;yt.forEach(function(t){var km=parseFloat(t.km)||0,b=cum;if(b>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}else{var ov=Math.max(0,(b+km)-THRESHOLD);t.kr=+((km-ov)*RATE1+ov*RATE2).toFixed(2);}cum+=km;});}
+function recalcYear(trips,y){var yt=yearTrips(trips,y),cum=loadStartKm(y);yt.forEach(function(t){var km=parseFloat(t.km)||0,b=cum;if(b>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}else{var ov=Math.max(0,(b+km)-THRESHOLD);t.kr=+((km-ov)*RATE1+ov*RATE2).toFixed(2);}cum+=km;});}
 function fmtKm(n){return Math.round(n).toLocaleString('da-DK');}
 function fmtKr(n){return n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
@@ -373,11 +390,12 @@ function updateAll(){
   var trips=load(),years={};
   trips.forEach(function(t){if(t.date)years[t.date.split('-')[0]]=true;});years[viewYear]=true;
   Object.keys(years).forEach(function(y){recalcYear(trips,parseInt(y));});
-  var yt=yearTrips(trips,viewYear),totalKm=0,totalKr=0;
-  yt.forEach(function(t){totalKm+=parseFloat(t.km)||0;totalKr+=t.kr||0;});
+  var startKm=loadStartKm(viewYear);
+  var yt=yearTrips(trips,viewYear),appKm=0,totalKr=0;
+  yt.forEach(function(t){appKm+=parseFloat(t.km)||0;totalKr+=t.kr||0;});
+  var totalKm=startKm+appKm;
   var mt=yt.filter(function(t){return parseInt(t.date.split('-')[1])-1===viewMonth;});
   var monthKm=0,monthKr=0;mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
-  document.getElementById('yearBadge').textContent=viewYear;
   document.getElementById('statYearKr').innerHTML=fmtKr(totalKr)+'<span> kr</span>';
   document.getElementById('statYearKm').innerHTML=fmtKm(totalKm)+'<span> km</span>';
   document.getElementById('statMonthKm').innerHTML=fmtKm(monthKm)+'<span> km</span>';
@@ -386,6 +404,8 @@ function updateAll(){
   var pct=Math.min(100,totalKm/THRESHOLD*100);
   document.getElementById('rateFill').style.width=pct+'%';
   document.getElementById('barLabel').textContent=fmtKm(Math.min(totalKm,THRESHOLD))+' / 20.000 km';
+  document.getElementById('startKmInput').value=startKm||'';
+  document.getElementById('startKmYear').textContent=viewYear;
   renderTable(mt,monthKm,monthKr);
 }
 
@@ -409,6 +429,13 @@ function renderTable(mt,monthKm,monthKr){
   }
 }
 
+function applyStartKm(){
+  var v=parseFloat(document.getElementById('startKmInput').value)||0;
+  saveStartKm(viewYear,v);
+  showToast('Startsaldo gemt · '+fmtKm(v)+' km');
+  updateAll();
+}
+
 function prevMonth(){viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}updateAll();}
 function nextMonth(){viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}updateAll();}
 
@@ -416,7 +443,7 @@ function addTrip(date,fromLabel,from,toLabel,to,purpose,km){
   var trips=load();
   trips.push({id:uid(),date:date,fromLabel:fromLabel,from:from,toLabel:toLabel,to:to,purpose:purpose,km:parseFloat(km)||0,kr:0});
   recalcYear(trips,parseInt(date.split('-')[0]));
-  save(trips);updateAll();
+  save(trips);
 }
 
 function showToast(msg){
@@ -430,21 +457,27 @@ function goDate(d){var p=d.split('-');viewYear=parseInt(p[0]);viewMonth=parseInt
 // ── HURTIGKNAPPER ──
 function addBygma(date){
   var d=date||todayStr();
+  if(!date)goNow();else goDate(d);
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Bygma','Transformervej 12, 2860 Søborg','Freelance',41);
   addTrip(d,'Bygma','Transformervej 12, 2860 Søborg','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',41);
-  showToast('Bygma tilføjet · 82 km');if(!date)goNow();else goDate(d);updateAll();
+  showToast('Bygma tilføjet · 82 km');
+  updateAll();
 }
 function addVP(date){
   var d=date||todayStr();
+  if(!date)goNow();else goDate(d);
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','P-Kælder','Heimdalsgade 42, 2200 København N','Fremvisning',42);
   addTrip(d,'P-Kælder','Heimdalsgade 42, 2200 København N','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',42);
-  showToast('P-Kælder tilføjet · 84 km');if(!date)goNow();else goDate(d);updateAll();
+  showToast('P-Kælder tilføjet · 84 km');
+  updateAll();
 }
 function addVP2(date){
   var d=date||todayStr();
+  if(!date)goNow();else goDate(d);
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Møde',37);
   addTrip(d,'Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',37);
-  showToast('VP tilføjet · 74 km');if(!date)goNow();else goDate(d);updateAll();
+  showToast('VP tilføjet · 74 km');
+  updateAll();
 }
 
 // ── DATO POPUP ──
@@ -578,16 +611,28 @@ setupAC('fToLabel','fTo','acTo');
 
 // ── MANUEL TILFØJ ──
 function addManual(){
-  var date=document.getElementById('fDate').value;
-  var fromLabel=document.getElementById('fFromLabel').value.trim();
-  var from=document.getElementById('fFrom').value.trim();
-  var toLabel=document.getElementById('fToLabel').value.trim();
-  var to=document.getElementById('fTo').value.trim();
-  var purpose=document.getElementById('fPurpose').value.trim();
-  var km=parseFloat(document.getElementById('fKm').value);
-  if(!date||!from||!to||!km){alert('Udfyld dato, adresser og km.');return;}
-  addTrip(date,fromLabel||from,from,toLabel||to,to,purpose,km);
-  ['fFromLabel','fFrom','fToLabel','fTo','fPurpose','fKm'].forEach(function(id){document.getElementById(id).value='';});
+  var date     = document.getElementById('fDate').value;
+  var fromLabel= document.getElementById('fFromLabel').value.trim();
+  var from     = document.getElementById('fFrom').value.trim();
+  var toLabel  = document.getElementById('fToLabel').value.trim();
+  var to       = document.getElementById('fTo').value.trim();
+  var purpose  = document.getElementById('fPurpose').value.trim();
+  var kmRaw    = document.getElementById('fKm').value;
+  var km       = parseFloat(kmRaw);
+
+  if (!date)        { alert('Vælg venligst en dato.');         return; }
+  if (!from)        { alert('Udfyld Fra-adressen.');           return; }
+  if (!to)          { alert('Udfyld Til-adressen.');           return; }
+  if (!km || km<=0) { alert('Udfyld antal km (større end 0).'); return; }
+
+  goDate(date);
+  addTrip(date, fromLabel||from, from, toLabel||to, to, purpose, km);
+  ['fFromLabel','fFrom','fToLabel','fTo','fPurpose','fKm'].forEach(function(id){
+    document.getElementById(id).value='';
+  });
+  document.getElementById('fDate').value = todayStr();
+  showToast('Tur tilføjet');
+  updateAll();
 }
 
 function deleteTrip(id){
@@ -621,6 +666,8 @@ function exportMonth(){
 }
 
 document.getElementById('fDate').value=todayStr();
+// Sæt startsaldo for 2026 hvis den ikke allerede er gemt
+if(loadStartKm(2026)===0){saveStartKm(2026,11533);}
 updateAll();
 </script>
 </body>

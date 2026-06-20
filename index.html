@@ -162,15 +162,7 @@
     }
     .btn-add:hover { background: #2e3420; }
 
-    .start-km-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px 0; gap: 10px; }
-    .start-km-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: rgba(194,199,176,0.7); white-space: nowrap; }
-    .start-km-inputs { display: flex; align-items: center; gap: 6px; }
-    .start-km-field { width: 80px; padding: 6px 10px; font-size: 12px; text-align: right; }
-    .start-km-unit { font-size: 11px; color: rgba(194,199,176,0.7); font-weight: 700; }
-    .btn-startkm { background: rgba(194,199,176,0.15); color: #c2c7b0; border: 1px solid rgba(194,199,176,0.3); border-radius: 6px; padding: 6px 12px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
-    .btn-startkm:hover { background: rgba(194,199,176,0.25); }
-
-    /* ── TABEL ── */
+/* ── TABEL ── */
     .table-section { background: #c2c7b0; padding: 0 0 60px; }
     .table-header-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; border-top: 1px solid rgba(30,34,20,0.12); }
     .table-header-row .block-label { color: #5a5f4a; margin-bottom: 0; }
@@ -228,14 +220,6 @@
       <span id="barLabel">0 / 20.000 km</span>
     </div>
     <div class="rate-track"><div class="rate-fill" id="rateFill" style="width:0%"></div></div>
-    <div class="start-km-row">
-      <label class="start-km-label">Tidligere kørt i <span id="startKmYear"></span></label>
-      <div class="start-km-inputs">
-        <input type="number" id="startKmInput" class="finput start-km-field" placeholder="0" min="0" step="1">
-        <span class="start-km-unit">km</span>
-        <button class="btn-startkm" onclick="applyStartKm()">Gem</button>
-      </div>
-    </div>
   </div>
 
   <!-- HURTIG: dags dato (orange) -->
@@ -404,8 +388,6 @@ function updateAll(){
   var pct=Math.min(100,totalKm/THRESHOLD*100);
   document.getElementById('rateFill').style.width=pct+'%';
   document.getElementById('barLabel').textContent=fmtKm(Math.min(totalKm,THRESHOLD))+' / 20.000 km';
-  document.getElementById('startKmInput').value=startKm||'';
-  document.getElementById('startKmYear').textContent=viewYear;
   renderTable(mt,monthKm,monthKr);
 }
 

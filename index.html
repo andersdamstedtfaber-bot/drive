@@ -4,46 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Køreregnskab</title>
-
-  <!-- PWA / hjemmeskærm -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Køreregnskab">
   <meta name="theme-color" content="#c2c7b0">
   <meta name="mobile-web-app-capable" content="yes">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: #c2c7b0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-family: 'Roboto Condensed', -apple-system, BlinkMacSystemFont, sans-serif;
       color: #1e2214;
       min-height: 100vh;
     }
-
     .app { max-width: 600px; margin: 0 auto; min-height: 100vh; }
 
     /* ── TOP BAR ── */
     .topbar {
       background: #c2c7b0;
-      padding: 18px 20px 10px;
+      padding: 56px 24px 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
     .topbar-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #5a5f4a; text-transform: uppercase; }
-    .topbar-year  { font-size: 10px; font-weight: 700; letter-spacing: 1px;   color: #5a5f4a; text-transform: uppercase; }
+    .topbar-dots {
+      display: grid; grid-template-columns: repeat(3,5px); gap: 4px;
+    }
+    .topbar-dots span {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: #8a8f7a; display: block;
+    }
 
     /* ── HERO ── */
-    .hero { background: #c2c7b0; padding: 4px 20px 24px; }
-    .hero-sublabel { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #5a5f4a; text-transform: uppercase; margin-bottom: 6px; }
-    .hero-amount { font-size: clamp(36px, 10vw, 54px); font-weight: 800; letter-spacing: -2px; color: #1e2214; line-height: 1; margin-bottom: 20px; }
+    .hero { background: #c2c7b0; padding: 28px 24px 32px; }
+    .hero-sublabel { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #8a8f7a; text-transform: uppercase; margin-bottom: 10px; }
+    .hero-amount { font-size: clamp(44px, 12vw, 64px); font-weight: 800; letter-spacing: -3px; color: #1e2214; line-height: 1; margin-bottom: 32px; }
     .hero-amount span { color: #8a8f7a; font-weight: 300; }
-    .hero-rows { border-top: 1px solid rgba(30,34,20,0.15); }
-    .hero-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(30,34,20,0.15); }
-    .hero-row-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #5a5f4a; }
-    .hero-row-val   { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: #1e2214; }
-    .hero-row-val span { color: #8a8f7a; font-weight: 300; font-size: 16px; }
+    .hero-rows { border-top: 1px solid rgba(30,34,20,0.12); }
+    .hero-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(30,34,20,0.12); }
+    .hero-row-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #8a8f7a; }
+    .hero-row-val   { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; color: #1e2214; }
+    .hero-row-val span { color: #8a8f7a; font-weight: 300; font-size: 17px; }
 
     /* ── SATS ── */
     .rate-section { background: #c2c7b0; padding: 0 20px 20px; }
@@ -51,24 +54,53 @@
     .rate-track { background: rgba(30,34,20,0.12); border-radius: 2px; height: 4px; }
     .rate-fill  { background: #1e2214; height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 
-    /* ── HURTIG (orange) ── */
-    .quick-section { background: #d4673d; padding: 18px 20px; }
-    .block-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
-    .block-label.dark { color: #5a5f4a; margin-bottom: 14px; }
+    /* ── HURTIG SEKTIONER ── */
+    .quick-section        { background: #d4673d; padding: 18px 20px; }
+    .quick-section-retro  { background: #4a5240; padding: 14px 20px; }
+    .block-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 10px; }
+    .block-label.dark { color: #5a5f4a; margin-bottom: 12px; }
     .quick-btns { display: flex; gap: 8px; flex-wrap: wrap; }
     .quick-btn {
       background: rgba(255,255,255,0.15);
       border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 4px;
-      padding: 8px 16px;
+      border-radius: 4px; padding: 9px 18px;
       font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
-      color: #fff; cursor: pointer;
-      transition: background 0.15s;
+      color: #fff; cursor: pointer; transition: background 0.15s;
     }
-    .quick-btn:hover   { background: rgba(255,255,255,0.25); }
-    .quick-btn:active  { background: rgba(255,255,255,0.1); }
+    .quick-btn:hover  { background: rgba(255,255,255,0.25); }
+    .quick-btn:active { background: rgba(255,255,255,0.1); }
 
-    /* ── MÅNED (mørk) ── */
+    /* ── DATO POPUP ── */
+    .date-popup-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .date-popup-overlay.open { display: flex; }
+    .date-popup {
+      background: #c2c7b0; border-radius: 12px;
+      padding: 24px 20px 20px; width: 300px; max-width: 90vw;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .date-popup h3 { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #5a5f4a; margin-bottom: 14px; }
+    .date-popup-name { font-size: 18px; font-weight: 800; color: #1e2214; margin-bottom: 16px; }
+    .date-popup input[type=date] {
+      width: 100%; background: rgba(30,34,20,0.07);
+      border: 1px solid rgba(30,34,20,0.2); border-radius: 6px;
+      padding: 11px 12px; font-size: 16px; color: #1e2214;
+      outline: none; margin-bottom: 14px; -webkit-appearance: none;
+    }
+    .date-popup-btns { display: flex; gap: 8px; }
+    .date-popup-btns button {
+      flex: 1; padding: 11px; border-radius: 6px; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-confirm { background: #1e2214; color: #c2c7b0; }
+    .btn-confirm:hover { background: #2e3420; }
+    .btn-cancel  { background: rgba(30,34,20,0.1); color: #5a5f4a; }
+    .btn-cancel:hover { background: rgba(30,34,20,0.18); }
+
+    /* ── MÅNED ── */
     .month-section { background: #3a3f2e; padding: 18px 20px; }
     .month-section .block-label { color: rgba(255,255,255,0.4); }
     .month-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -76,7 +108,7 @@
     .nav-btns { display: flex; gap: 6px; }
     .nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; padding: 6px 12px; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 14px; }
     .nav-btn:hover { background: rgba(255,255,255,0.15); }
-    .month-stats { display: flex; gap: 0; }
+    .month-stats { display: flex; }
     .month-stat { flex: 1; }
     .month-stat + .month-stat { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 16px; margin-left: 16px; }
     .month-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
@@ -85,32 +117,47 @@
 
     /* ── FORM ── */
     .form-section { background: #c2c7b0; padding: 18px 20px; border-top: 1px solid rgba(30,34,20,0.1); }
-    .form-row { display: flex; flex-direction: column; gap: 10px; }
-    .form-line { display: flex; gap: 8px; align-items: center; }
+    .form-row { display: flex; flex-direction: column; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #5a5f4a;
+    }
+    .form-group-inputs { display: flex; gap: 8px; }
     .finput {
       flex: 1;
       background: rgba(30,34,20,0.07);
       border: 1px solid rgba(30,34,20,0.15);
-      border-radius: 6px;
-      padding: 11px 12px;
-      font-size: 14px; color: #1e2214; outline: none;
+      border-radius: 6px; padding: 11px 12px;
+      font-size: 16px; color: #1e2214; outline: none;
       -webkit-appearance: none;
     }
     .finput:focus { border-color: #1e2214; background: rgba(30,34,20,0.1); }
     .finput::placeholder { color: #8a8f7a; }
-    .finput.date-input { flex: 0 0 auto; width: 140px; font-size: 13px; }
-    .finput.km-input  { flex: 0 0 auto; width: 80px; }
-    .flabel {
-      flex: 0 0 32px;
-      font-size: 10px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: #5a5f4a;
-      text-align: right;
+    .finput.km-input { flex: 0 0 80px; }
+
+    /* Autocomplete */
+    .ac-wrap { position: relative; flex: 1; }
+    .ac-wrap .finput { width: 100%; }
+    .ac-list {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+      background: #e8ead8; border: 1px solid rgba(30,34,20,0.2);
+      border-radius: 6px; z-index: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      max-height: 200px; overflow-y: auto;
     }
+    .ac-item {
+      padding: 10px 12px; font-size: 13px; cursor: pointer;
+      border-bottom: 1px solid rgba(30,34,20,0.08); color: #1e2214;
+    }
+    .ac-item:last-child { border-bottom: none; }
+    .ac-item:hover { background: rgba(30,34,20,0.07); }
+    .ac-item-main { font-weight: 600; }
+    .ac-item-sub  { font-size: 11px; color: #8a8f7a; margin-top: 1px; }
+
     .btn-add {
-      flex: 0 0 auto;
-      background: #1e2214; color: #c2c7b0;
-      border: none; border-radius: 6px;
-      padding: 11px 16px;
+      flex: 0 0 auto; background: #1e2214; color: #c2c7b0;
+      border: none; border-radius: 6px; padding: 11px 16px;
       font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
       cursor: pointer; white-space: nowrap;
     }
@@ -118,70 +165,30 @@
 
     /* ── TABEL ── */
     .table-section { background: #c2c7b0; padding: 0 0 60px; }
-    .table-header-row {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 14px 20px 8px;
-      border-top: 1px solid rgba(30,34,20,0.12);
-    }
+    .table-header-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; border-top: 1px solid rgba(30,34,20,0.12); }
     .table-header-row .block-label { color: #5a5f4a; margin-bottom: 0; }
-    .btn-export {
-      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      color: #5a5f4a; background: none;
-      border: 1px solid rgba(30,34,20,0.2); border-radius: 4px;
-      padding: 5px 12px; cursor: pointer;
-    }
+    .btn-export { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; background: none; border: 1px solid rgba(30,34,20,0.2); border-radius: 4px; padding: 5px 12px; cursor: pointer; }
     .btn-export:hover { background: rgba(30,34,20,0.07); }
-
-    /* Thead + tabel rækker */
-    .trip-row {
-      display: grid;
-      grid-template-columns: 76px 1fr 1fr 56px 70px 26px;
-      gap: 0;
-      padding: 10px 20px;
-      border-bottom: 1px solid rgba(30,34,20,0.09);
-      align-items: center;
-    }
-    .trip-row.thead {
-      font-size: 9px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: #8a8f7a;
-      padding-bottom: 6px;
-    }
+    .trip-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 68px 26px; padding: 10px 20px; border-bottom: 1px solid rgba(30,34,20,0.09); align-items: center; }
+    .trip-row.thead { font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #8a8f7a; padding-bottom: 6px; }
     .trip-row:hover:not(.thead) { background: rgba(30,34,20,0.04); }
     .trip-col { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; font-size: 12px; color: #1e2214; }
-    .trip-col.km { font-weight: 700; text-align: right; color: #1e2214; font-size: 11px; }
+    .trip-col.km { font-weight: 700; text-align: right; font-size: 11px; }
     .trip-col.kr { font-weight: 700; text-align: right; color: #d4673d; font-size: 11px; }
     .trip-del { background: none; border: none; color: #aaa; cursor: pointer; font-size: 14px; text-align: right; padding: 0; line-height: 1; }
     .trip-del:hover { color: #d4673d; }
-
-    .trip-empty { padding: 24px 20px; font-size: 12px; color: #8a8f7a; letter-spacing: 0.5px; }
-
-    .tfoot-row {
-      display: grid;
-      grid-template-columns: 76px 1fr 1fr 56px 70px 26px;
-      gap: 0;
-      padding: 12px 20px;
-      border-top: 2px solid rgba(30,34,20,0.2);
-      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
-    }
-    .tfoot-row .km { text-align: right; color: #1e2214; }
+    .trip-empty { padding: 24px 20px; font-size: 12px; color: #8a8f7a; }
+    .tfoot-row { display: grid; grid-template-columns: 76px 1fr 1fr 54px 68px 26px; padding: 12px 20px; border-top: 2px solid rgba(30,34,20,0.2); font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+    .tfoot-row .km { text-align: right; }
     .tfoot-row .kr { text-align: right; color: #d4673d; }
 
-    /* ── MOBIL (iPhone 16 Pro = 393px) ── */
+    /* ── MOBIL ── */
     @media (max-width: 430px) {
-      .topbar, .hero, .rate-section, .quick-section,
+      .topbar, .hero, .rate-section, .quick-section, .quick-section-retro,
       .month-section, .form-section, .table-header-row { padding-left: 16px; padding-right: 16px; }
-
-      .hero-amount { font-size: 40px; }
-
-      .trip-row, .tfoot-row { padding-left: 16px; padding-right: 16px; }
-      .trip-row { grid-template-columns: 68px 1fr 1fr 50px 64px 22px; }
-      .tfoot-row { grid-template-columns: 68px 1fr 1fr 50px 64px 22px; }
+      .hero-amount { font-size: 38px; }
+      .trip-row, .tfoot-row { padding-left: 12px; padding-right: 12px; grid-template-columns: 66px 1fr 1fr 48px 62px 22px; }
       .trip-col { font-size: 11px; }
-
-      .finput { font-size: 16px; /* eviter iOS zoom */ }
-      .finput.date-input { width: 100%; }
-      .form-line { flex-wrap: wrap; }
-      .form-line .flabel { flex: 0 0 28px; font-size: 9px; }
     }
   </style>
 </head>
@@ -190,7 +197,11 @@
 
   <div class="topbar">
     <div class="topbar-label">Køreregnskab</div>
-    <div class="topbar-year" id="yearBadge">2026</div>
+    <div class="topbar-dots">
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+      <span></span><span></span><span></span>
+    </div>
   </div>
 
   <div class="hero">
@@ -212,12 +223,23 @@
     <div class="rate-track"><div class="rate-fill" id="rateFill" style="width:0%"></div></div>
   </div>
 
+  <!-- HURTIG: dags dato (orange) -->
   <div class="quick-section">
-    <div class="block-label">Hurtig registrering</div>
+    <div class="block-label">Hurtig registrering · i dag</div>
     <div class="quick-btns">
-      <button class="quick-btn" onclick="addBygma()">Bygma</button>
-      <button class="quick-btn" onclick="addVP()">P-Kælder</button>
-      <button class="quick-btn" onclick="addVP2()">VP</button>
+      <button class="quick-btn" onclick="addBygma(null)">Bygma</button>
+      <button class="quick-btn" onclick="addVP(null)">P-Kælder</button>
+      <button class="quick-btn" onclick="addVP2(null)">VP</button>
+    </div>
+  </div>
+
+  <!-- HURTIG: vælg dato (mørk) -->
+  <div class="quick-section-retro">
+    <div class="block-label">Hurtig registrering · anden dato</div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="openDatePicker('bygma')">Bygma</button>
+      <button class="quick-btn" onclick="openDatePicker('pkaelder')">P-Kælder</button>
+      <button class="quick-btn" onclick="openDatePicker('vp')">VP</button>
     </div>
   </div>
 
@@ -245,29 +267,45 @@
   <div class="form-section">
     <div class="block-label dark">Tilføj tur manuelt</div>
     <div class="form-row">
-      <!-- Dato -->
-      <div class="form-line">
-        <input class="finput date-input" type="date" id="fDate">
+
+      <div class="form-group">
+        <div class="form-group-label">Dato</div>
+        <div class="form-group-inputs">
+          <input class="finput" type="date" id="fDate">
+        </div>
       </div>
-      <!-- Fra -->
-      <div class="form-line">
-        <span class="flabel">Fra</span>
-        <input class="finput" type="text" id="fFromLabel" placeholder="Navn (fx Helsingør)">
-        <input class="finput" type="text" id="fFrom" placeholder="Adresse">
+
+      <div class="form-group">
+        <div class="form-group-label">Fra</div>
+        <div class="form-group-inputs">
+          <input class="finput" type="text" id="fFromLabel" placeholder="Navn (fx Helsingør)">
+          <div class="ac-wrap">
+            <input class="finput" type="text" id="fFrom" placeholder="Adresse" autocomplete="off">
+            <div class="ac-list" id="acFrom" style="display:none"></div>
+          </div>
+        </div>
       </div>
-      <!-- Til -->
-      <div class="form-line">
-        <span class="flabel">Til</span>
-        <input class="finput" type="text" id="fToLabel" placeholder="Navn (fx Bygma)">
-        <input class="finput" type="text" id="fTo" placeholder="Adresse">
+
+      <div class="form-group">
+        <div class="form-group-label">Til</div>
+        <div class="form-group-inputs">
+          <input class="finput" type="text" id="fToLabel" placeholder="Navn (fx Bygma)">
+          <div class="ac-wrap">
+            <input class="finput" type="text" id="fTo" placeholder="Adresse" autocomplete="off">
+            <div class="ac-list" id="acTo" style="display:none"></div>
+          </div>
+        </div>
       </div>
-      <!-- Formål + Km + Tilføj -->
-      <div class="form-line">
-        <span class="flabel"></span>
-        <input class="finput" type="text" id="fPurpose" placeholder="Formål">
-        <input class="finput km-input" type="number" id="fKm" placeholder="Km" min="0" step="0.1">
-        <button class="btn-add" onclick="addManual()">+ Tilføj</button>
+
+      <div class="form-group">
+        <div class="form-group-label">Formål &amp; km</div>
+        <div class="form-group-inputs">
+          <input class="finput" type="text" id="fPurpose" placeholder="Formål">
+          <input class="finput km-input" type="number" id="fKm" placeholder="Km" min="0" step="0.1">
+          <button class="btn-add" onclick="addManual()">+ Tilføj</button>
+        </div>
       </div>
+
     </div>
   </div>
 
@@ -287,7 +325,7 @@
     <div id="tripBody"></div>
     <div class="tfoot-row" id="tfoot" style="display:none">
       <div></div>
-      <div style="font-size:9px;letter-spacing:1px;color:#8a8f7a;align-self:center">I ALT</div>
+      <div style="font-size:9px;letter-spacing:1px;color:#8a8f7a">I ALT</div>
       <div></div>
       <div class="km" id="footKm"></div>
       <div class="kr" id="footKr"></div>
@@ -297,87 +335,69 @@
 
 </div>
 
-<div id="toast" style="
-  position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
-  background:#1e2214; color:#c2c7b0; padding:11px 22px; border-radius:4px;
-  font-size:12px; font-weight:700; letter-spacing:0.5px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.25);
-  opacity:0; transition:opacity 0.25s, transform 0.25s; pointer-events:none; z-index:9999;
-"></div>
+<!-- DATO POPUP -->
+<div class="date-popup-overlay" id="datePopup">
+  <div class="date-popup">
+    <h3>Vælg dato</h3>
+    <div class="date-popup-name" id="popupName"></div>
+    <input type="date" id="popupDate">
+    <div class="date-popup-btns">
+      <button class="btn-cancel" onclick="closeDatePicker()">Annuller</button>
+      <button class="btn-confirm" onclick="confirmDatePicker()">Tilføj tur</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e2214;color:#c2c7b0;padding:11px 22px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:0.5px;box-shadow:0 4px 20px rgba(0,0,0,0.25);opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;z-index:9999;"></div>
 
 <script>
-var RATE1=3.94, RATE2=2.28, THRESHOLD=20000;
+var RATE1=3.94,RATE2=2.28,THRESHOLD=20000;
 var MONTHS_DA=['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
-var now=new Date(), viewYear=now.getFullYear(), viewMonth=now.getMonth();
+var now=new Date(),viewYear=now.getFullYear(),viewMonth=now.getMonth();
 var memStore=null;
 
-function load(){
-  try{ var raw=localStorage.getItem('koreregnskab_v1'); if(raw) memStore=JSON.parse(raw); return memStore?JSON.parse(JSON.stringify(memStore)):[];} catch(e){return memStore?JSON.parse(JSON.stringify(memStore)):[];}
-}
-function save(trips){
-  memStore=JSON.parse(JSON.stringify(trips));
-  try{localStorage.setItem('koreregnskab_v1',JSON.stringify(trips));}catch(e){}
-}
-function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
-function pad(n){ return n<10?'0'+n:''+n; }
-function formatDate(s){ if(!s) return ''; var p=s.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
-function uid(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function load(){try{var r=localStorage.getItem('koreregnskab_v1');if(r)memStore=JSON.parse(r);return memStore?JSON.parse(JSON.stringify(memStore)):[];}catch(e){return memStore?JSON.parse(JSON.stringify(memStore)):[];}}
+function save(t){memStore=JSON.parse(JSON.stringify(t));try{localStorage.setItem('koreregnskab_v1',JSON.stringify(t));}catch(e){}}
+function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return n<10?'0'+n:''+n;}
+function formatDate(s){if(!s)return '';var p=s.split('-');return p[2]+'.'+p[1]+'.'+p[0];}
+function uid(){return Date.now()+'_'+Math.random().toString(36).slice(2,7);}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-function yearTrips(trips,y){
-  return trips.filter(function(t){return t.date&&t.date.startsWith(''+y);}).sort(function(a,b){return a.date.localeCompare(b.date);});
-}
-function recalcYear(trips,y){
-  var yt=yearTrips(trips,y),cum=0;
-  yt.forEach(function(t){
-    var km=parseFloat(t.km)||0,before=cum;
-    if(before>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}
-    else{var over=Math.max(0,(before+km)-THRESHOLD);t.kr=+((km-over)*RATE1+over*RATE2).toFixed(2);}
-    cum+=km;
-  });
-}
+function yearTrips(trips,y){return trips.filter(function(t){return t.date&&t.date.startsWith(''+y);}).sort(function(a,b){return a.date.localeCompare(b.date);});}
+function recalcYear(trips,y){var yt=yearTrips(trips,y),cum=0;yt.forEach(function(t){var km=parseFloat(t.km)||0,b=cum;if(b>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}else{var ov=Math.max(0,(b+km)-THRESHOLD);t.kr=+((km-ov)*RATE1+ov*RATE2).toFixed(2);}cum+=km;});}
 function fmtKm(n){return Math.round(n).toLocaleString('da-DK');}
 function fmtKr(n){return n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});}
 
 function updateAll(){
-  var trips=load();
-  var years={}; trips.forEach(function(t){if(t.date) years[t.date.split('-')[0]]=true;}); years[viewYear]=true;
+  var trips=load(),years={};
+  trips.forEach(function(t){if(t.date)years[t.date.split('-')[0]]=true;});years[viewYear]=true;
   Object.keys(years).forEach(function(y){recalcYear(trips,parseInt(y));});
-
-  var yt=yearTrips(trips,viewYear);
-  var totalKm=0,totalKr=0; yt.forEach(function(t){totalKm+=parseFloat(t.km)||0;totalKr+=t.kr||0;});
-
+  var yt=yearTrips(trips,viewYear),totalKm=0,totalKr=0;
+  yt.forEach(function(t){totalKm+=parseFloat(t.km)||0;totalKr+=t.kr||0;});
   var mt=yt.filter(function(t){return parseInt(t.date.split('-')[1])-1===viewMonth;});
-  var monthKm=0,monthKr=0; mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
-
+  var monthKm=0,monthKr=0;mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
   document.getElementById('yearBadge').textContent=viewYear;
   document.getElementById('statYearKr').innerHTML=fmtKr(totalKr)+'<span> kr</span>';
   document.getElementById('statYearKm').innerHTML=fmtKm(totalKm)+'<span> km</span>';
   document.getElementById('statMonthKm').innerHTML=fmtKm(monthKm)+'<span> km</span>';
   document.getElementById('statMonthKr').innerHTML=fmtKr(monthKr)+'<span> kr</span>';
   document.getElementById('monthLabel').textContent=MONTHS_DA[viewMonth]+' '+viewYear;
-
   var pct=Math.min(100,totalKm/THRESHOLD*100);
   document.getElementById('rateFill').style.width=pct+'%';
   document.getElementById('barLabel').textContent=fmtKm(Math.min(totalKm,THRESHOLD))+' / 20.000 km';
-
   renderTable(mt,monthKm,monthKr);
 }
 
 function renderTable(mt,monthKm,monthKr){
-  var body=document.getElementById('tripBody'), tfoot=document.getElementById('tfoot');
-  if(!mt.length){
-    body.innerHTML='<div class="trip-empty">Ingen ture i denne måned</div>';
-    tfoot.style.display='none';
-  } else {
+  var body=document.getElementById('tripBody'),tfoot=document.getElementById('tfoot');
+  if(!mt.length){body.innerHTML='<div class="trip-empty">Ingen ture i denne måned</div>';tfoot.style.display='none';}
+  else{
     body.innerHTML=mt.map(function(t){
-      // Vis fromLabel hvis det findes, ellers from
-      var fra=esc(t.fromLabel||t.from||'');
-      var til=esc(t.toLabel||t.to||'');
       return '<div class="trip-row">'+
         '<div class="trip-col">'+formatDate(t.date)+'</div>'+
-        '<div class="trip-col">'+fra+'</div>'+
-        '<div class="trip-col">'+til+'</div>'+
+        '<div class="trip-col">'+esc(t.fromLabel||t.from||'')+'</div>'+
+        '<div class="trip-col">'+esc(t.toLabel||t.to||'')+'</div>'+
         '<div class="trip-col km">'+fmtKm(parseFloat(t.km)||0)+' km</div>'+
         '<div class="trip-col kr">'+fmtKr(t.kr||0)+' kr</div>'+
         '<div><button class="trip-del" onclick="deleteTrip(\''+t.id+'\')" title="Slet">&#10005;</button></div>'+
@@ -396,35 +416,167 @@ function addTrip(date,fromLabel,from,toLabel,to,purpose,km){
   var trips=load();
   trips.push({id:uid(),date:date,fromLabel:fromLabel,from:from,toLabel:toLabel,to:to,purpose:purpose,km:parseFloat(km)||0,kr:0});
   recalcYear(trips,parseInt(date.split('-')[0]));
-  save(trips); updateAll();
+  save(trips);updateAll();
 }
 
 function showToast(msg){
   var t=document.getElementById('toast');
-  t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  t.textContent=msg;t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
   setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},2500);
 }
 function goNow(){var n=new Date();viewYear=n.getFullYear();viewMonth=n.getMonth();}
+function goDate(d){var p=d.split('-');viewYear=parseInt(p[0]);viewMonth=parseInt(p[1])-1;}
 
-function addBygma(){
-  var d=todayStr();
+// ── HURTIGKNAPPER ──
+function addBygma(date){
+  var d=date||todayStr();
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Bygma','Transformervej 12, 2860 Søborg','Freelance',41);
   addTrip(d,'Bygma','Transformervej 12, 2860 Søborg','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',41);
-  showToast('Bygma tilføjet · 82 km'); goNow(); updateAll();
+  showToast('Bygma tilføjet · 82 km');if(!date)goNow();else goDate(d);updateAll();
 }
-function addVP(){
-  var d=todayStr();
+function addVP(date){
+  var d=date||todayStr();
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','P-Kælder','Heimdalsgade 42, 2200 København N','Fremvisning',42);
   addTrip(d,'P-Kælder','Heimdalsgade 42, 2200 København N','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',42);
-  showToast('P-Kælder tilføjet · 84 km'); goNow(); updateAll();
+  showToast('P-Kælder tilføjet · 84 km');if(!date)goNow();else goDate(d);updateAll();
 }
-function addVP2(){
-  var d=todayStr();
+function addVP2(date){
+  var d=date||todayStr();
   addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Møde',37);
   addTrip(d,'Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',37);
-  showToast('VP tilføjet · 74 km'); goNow(); updateAll();
+  showToast('VP tilføjet · 74 km');if(!date)goNow();else goDate(d);updateAll();
 }
 
+// ── DATO POPUP ──
+var pendingKey=null;
+function openDatePicker(key){
+  pendingKey=key;
+  var names={bygma:'Bygma',pkaelder:'P-Kælder',vp:'VP'};
+  document.getElementById('popupName').textContent=names[key];
+  document.getElementById('popupDate').value=todayStr();
+  document.getElementById('datePopup').classList.add('open');
+}
+function closeDatePicker(){document.getElementById('datePopup').classList.remove('open');pendingKey=null;}
+function confirmDatePicker(){
+  var d=document.getElementById('popupDate').value;
+  if(!d){alert('Vælg venligst en dato.');return;}
+  closeDatePicker();
+  if(pendingKey==='bygma')addBygma(d);
+  else if(pendingKey==='pkaelder')addVP(d);
+  else if(pendingKey==='vp')addVP2(d);
+}
+document.getElementById('datePopup').addEventListener('click',function(e){if(e.target===this)closeDatePicker();});
+
+// ── HJEM-GENVEJ ──
+var HJEM_ADDR = 'Hollandskevej 6, 3000 Helsingør';
+
+function checkHjem(labelInp, addrInp) {
+  if (labelInp.value.trim().toLowerCase() === 'hjem') {
+    addrInp.value = HJEM_ADDR;
+    tryCalcKm();
+  }
+}
+
+// ── KM BEREGNING VIA OSRM ──
+function geocode(addr) {
+  return fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(addr) + '&format=json&limit=1&countrycodes=dk')
+    .then(function(r){ return r.json(); })
+    .then(function(res){ return res.length ? {lat: parseFloat(res[0].lat), lon: parseFloat(res[0].lon)} : null; });
+}
+
+function tryCalcKm() {
+  var fromAddr = document.getElementById('fFrom').value.trim();
+  var toAddr   = document.getElementById('fTo').value.trim();
+  if (!fromAddr || !toAddr) return;
+
+  var kmInp = document.getElementById('fKm');
+  kmInp.placeholder = '...';
+
+  Promise.all([geocode(fromAddr), geocode(toAddr)])
+    .then(function(coords) {
+      var a = coords[0], b = coords[1];
+      if (!a || !b) { kmInp.placeholder = 'Km'; return; }
+      var url = 'https://router.project-osrm.org/route/v1/driving/' +
+        a.lon+','+a.lat+';'+b.lon+','+b.lat+'?overview=false';
+      return fetch(url).then(function(r){ return r.json(); });
+    })
+    .then(function(data) {
+      if (!data || !data.routes || !data.routes[0]) { kmInp.placeholder = 'Km'; return; }
+      var km = Math.round(data.routes[0].distance / 1000);
+      kmInp.value = km;
+      kmInp.placeholder = 'Km';
+    })
+    .catch(function(){ kmInp.placeholder = 'Km'; });
+}
+
+// ── ADRESSE AUTOCOMPLETE (OpenStreetMap Nominatim) ──
+var acTimers={};
+function setupAC(labelId, addrId, listId){
+  var labelInp = document.getElementById(labelId);
+  var addrInp  = document.getElementById(addrId);
+  var lst      = document.getElementById(listId);
+
+  labelInp.addEventListener('input', function(){
+    clearTimeout(acTimers[labelId]);
+    var q = labelInp.value.trim();
+
+    // Hjem-genvej
+    if (q.toLowerCase() === 'hjem') {
+      lst.style.display = 'none';
+      addrInp.value = HJEM_ADDR;
+      tryCalcKm();
+      return;
+    }
+
+    if (q.length < 2) { lst.style.display='none'; return; }
+
+    acTimers[labelId] = setTimeout(function(){
+      fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(q)+'&format=json&addressdetails=1&limit=6&countrycodes=dk')
+        .then(function(r){ return r.json(); })
+        .then(function(results){
+          if (!results.length) { lst.style.display='none'; return; }
+          lst.innerHTML = results.map(function(r){
+            var parts = r.display_name.split(',');
+            var name  = parts[0].trim();
+            var a     = r.address||{};
+            var road  = a.road||a.pedestrian||a.footway||'';
+            var house = a.house_number||'';
+            var post  = a.postcode||'';
+            var city  = a.city||a.town||a.village||a.municipality||'';
+            var addrStr = [road+(house?' '+house:''), post+' '+city].filter(function(s){return s.trim();}).join(', ');
+            if (!addrStr.trim()) addrStr = parts.slice(0,3).join(',').trim();
+            return '<div class="ac-item" data-name="'+esc(name)+'" data-addr="'+esc(addrStr)+'">'+
+              '<div class="ac-item-main">'+esc(name)+'</div>'+
+              '<div class="ac-item-sub">'+esc(addrStr)+'</div>'+
+            '</div>';
+          }).join('');
+          lst.style.display = 'block';
+          lst.querySelectorAll('.ac-item').forEach(function(item){
+            item.addEventListener('mousedown', function(e){
+              e.preventDefault();
+              labelInp.value = item.getAttribute('data-name');
+              addrInp.value  = item.getAttribute('data-addr');
+              lst.style.display = 'none';
+              tryCalcKm();
+            });
+          });
+        }).catch(function(){ lst.style.display='none'; });
+    }, 400);
+  });
+
+  // Tjek hjem ved blur også
+  labelInp.addEventListener('blur', function(){
+    setTimeout(function(){ lst.style.display='none'; }, 200);
+    checkHjem(labelInp, addrInp);
+  });
+
+  // Genberegn km når adressefeltet ændres manuelt
+  addrInp.addEventListener('change', tryCalcKm);
+}
+setupAC('fFromLabel','fFrom','acFrom');
+setupAC('fToLabel','fTo','acTo');
+
+// ── MANUEL TILFØJ ──
 function addManual(){
   var date=document.getElementById('fDate').value;
   var fromLabel=document.getElementById('fFromLabel').value.trim();
@@ -439,54 +591,33 @@ function addManual(){
 }
 
 function deleteTrip(id){
-  if(!confirm('Slet denne tur?')) return;
+  if(!confirm('Slet denne tur?'))return;
   var trips=load().filter(function(t){return t.id!==id;});
-  var years={}; trips.forEach(function(t){if(t.date) years[t.date.split('-')[0]]=true;});
+  var years={};trips.forEach(function(t){if(t.date)years[t.date.split('-')[0]]=true;});
   Object.keys(years).forEach(function(y){recalcYear(trips,parseInt(y));});
-  save(trips); updateAll();
+  save(trips);updateAll();
 }
 
 function exportMonth(){
-  var trips=load(); recalcYear(trips,viewYear);
+  var trips=load();recalcYear(trips,viewYear);
   var mt=yearTrips(trips,viewYear).filter(function(t){return parseInt(t.date.split('-')[1])-1===viewMonth;});
   if(!mt.length){alert('Ingen ture i '+MONTHS_DA[viewMonth]+' '+viewYear+'.');return;}
-  var monthKm=0,monthKr=0;
-  mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
-
+  var monthKm=0,monthKr=0;mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
   var rows=[];
-  // Måneds-total øverst
   rows.push(['Måned',MONTHS_DA[viewMonth]+' '+viewYear,'','','','','','']);
   rows.push(['Samlet km',Math.round(monthKm).toString().replace('.',','),'','','','','','']);
   rows.push(['Samlet kr',monthKr.toFixed(2).replace('.',','),'','','','','','']);
   rows.push([]);
-  // Header
   rows.push(['Dato','Fra','Fra adresse','Til','Til adresse','Formål','Km','Kroner']);
   mt.forEach(function(t){
-    rows.push([
-      formatDate(t.date),
-      t.fromLabel||t.from||'',
-      t.from||'',
-      t.toLabel||t.to||'',
-      t.to||'',
-      t.purpose||'',
-      (parseFloat(t.km)||0).toString().replace('.',','),
-      (t.kr||0).toFixed(2).replace('.',',')
-    ]);
+    rows.push([formatDate(t.date),t.fromLabel||t.from||'',t.from||'',t.toLabel||t.to||'',t.to||'',t.purpose||'',(parseFloat(t.km)||0).toString().replace('.',','),(t.kr||0).toFixed(2).replace('.',',')]);
   });
   rows.push(['','','','','','I alt',Math.round(monthKm).toString(),monthKr.toFixed(2).replace('.',',')]);
-
-  var csv=rows.map(function(r){
-    return r.map(function(c){
-      var s=(c||'').toString();
-      if(s.indexOf(';')>-1||s.indexOf('"')>-1) s='"'+s.replace(/"/g,'""')+'"';
-      return s;
-    }).join(';');
-  }).join('\r\n');
-
+  var csv=rows.map(function(r){return r.map(function(c){var s=(c||'').toString();if(s.indexOf(';')>-1||s.indexOf('"')>-1)s='"'+s.replace(/"/g,'""')+'"';return s;}).join(';');}).join('\r\n');
   var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
-  var url=URL.createObjectURL(blob); var a=document.createElement('a');
-  a.href=url; a.download='Koreregnskab_'+MONTHS_DA[viewMonth]+'_'+viewYear+'.csv';
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='Koreregnskab_'+MONTHS_DA[viewMonth]+'_'+viewYear+'.csv';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
 }
 
 document.getElementById('fDate').value=todayStr();

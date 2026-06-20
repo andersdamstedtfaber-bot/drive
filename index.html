@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Køreregnskab</title>
+
+  <!-- PWA / hjemmeskærm -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Køreregnskab">
+  <meta name="theme-color" content="#c2c7b0">
+  <meta name="mobile-web-app-capable" content="yes">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #c2c7b0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      color: #1e2214;
+      min-height: 100vh;
+    }
+
+    .app { max-width: 600px; margin: 0 auto; min-height: 100vh; }
+
+    /* ── TOP BAR ── */
+    .topbar {
+      background: #c2c7b0;
+      padding: 18px 20px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .topbar-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #5a5f4a; text-transform: uppercase; }
+    .topbar-year  { font-size: 10px; font-weight: 700; letter-spacing: 1px;   color: #5a5f4a; text-transform: uppercase; }
+
+    /* ── HERO ── */
+    .hero { background: #c2c7b0; padding: 4px 20px 24px; }
+    .hero-sublabel { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #5a5f4a; text-transform: uppercase; margin-bottom: 6px; }
+    .hero-amount { font-size: clamp(36px, 10vw, 54px); font-weight: 800; letter-spacing: -2px; color: #1e2214; line-height: 1; margin-bottom: 20px; }
+    .hero-amount span { color: #8a8f7a; font-weight: 300; }
+    .hero-rows { border-top: 1px solid rgba(30,34,20,0.15); }
+    .hero-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(30,34,20,0.15); }
+    .hero-row-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #5a5f4a; }
+    .hero-row-val   { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; color: #1e2214; }
+    .hero-row-val span { color: #8a8f7a; font-weight: 300; font-size: 16px; }
+
+    /* ── SATS ── */
+    .rate-section { background: #c2c7b0; padding: 0 20px 20px; }
+    .rate-label-row { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #5a5f4a; margin-bottom: 8px; }
+    .rate-track { background: rgba(30,34,20,0.12); border-radius: 2px; height: 4px; }
+    .rate-fill  { background: #1e2214; height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+
+    /* ── HURTIG (orange) ── */
+    .quick-section { background: #d4673d; padding: 18px 20px; }
+    .block-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+    .block-label.dark { color: #5a5f4a; margin-bottom: 14px; }
+    .quick-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .quick-btn {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 4px;
+      padding: 8px 16px;
+      font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
+      color: #fff; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .quick-btn:hover   { background: rgba(255,255,255,0.25); }
+    .quick-btn:active  { background: rgba(255,255,255,0.1); }
+
+    /* ── MÅNED (mørk) ── */
+    .month-section { background: #3a3f2e; padding: 18px 20px; }
+    .month-section .block-label { color: rgba(255,255,255,0.4); }
+    .month-nav-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .month-nav-row .month-name { font-size: clamp(16px,5vw,20px); font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+    .nav-btns { display: flex; gap: 6px; }
+    .nav-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 4px; padding: 6px 12px; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 14px; }
+    .nav-btn:hover { background: rgba(255,255,255,0.15); }
+    .month-stats { display: flex; gap: 0; }
+    .month-stat { flex: 1; }
+    .month-stat + .month-stat { border-left: 1px solid rgba(255,255,255,0.1); padding-left: 16px; margin-left: 16px; }
+    .month-stat-label { font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+    .month-stat-val   { font-size: clamp(22px,6vw,28px); font-weight: 700; color: #fff; letter-spacing: -1px; }
+    .month-stat-val span { font-size: clamp(16px,4vw,20px); color: rgba(255,255,255,0.4); font-weight: 300; }
+
+    /* ── FORM ── */
+    .form-section { background: #c2c7b0; padding: 18px 20px; border-top: 1px solid rgba(30,34,20,0.1); }
+    .form-row { display: flex; flex-direction: column; gap: 10px; }
+    .form-line { display: flex; gap: 8px; align-items: center; }
+    .finput {
+      flex: 1;
+      background: rgba(30,34,20,0.07);
+      border: 1px solid rgba(30,34,20,0.15);
+      border-radius: 6px;
+      padding: 11px 12px;
+      font-size: 14px; color: #1e2214; outline: none;
+      -webkit-appearance: none;
+    }
+    .finput:focus { border-color: #1e2214; background: rgba(30,34,20,0.1); }
+    .finput::placeholder { color: #8a8f7a; }
+    .finput.date-input { flex: 0 0 auto; width: 140px; font-size: 13px; }
+    .finput.km-input  { flex: 0 0 auto; width: 80px; }
+    .flabel {
+      flex: 0 0 32px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #5a5f4a;
+      text-align: right;
+    }
+    .btn-add {
+      flex: 0 0 auto;
+      background: #1e2214; color: #c2c7b0;
+      border: none; border-radius: 6px;
+      padding: 11px 16px;
+      font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn-add:hover { background: #2e3420; }
+
+    /* ── TABEL ── */
+    .table-section { background: #c2c7b0; padding: 0 0 60px; }
+    .table-header-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 20px 8px;
+      border-top: 1px solid rgba(30,34,20,0.12);
+    }
+    .table-header-row .block-label { color: #5a5f4a; margin-bottom: 0; }
+    .btn-export {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      color: #5a5f4a; background: none;
+      border: 1px solid rgba(30,34,20,0.2); border-radius: 4px;
+      padding: 5px 12px; cursor: pointer;
+    }
+    .btn-export:hover { background: rgba(30,34,20,0.07); }
+
+    /* Thead + tabel rækker */
+    .trip-row {
+      display: grid;
+      grid-template-columns: 76px 1fr 1fr 56px 70px 26px;
+      gap: 0;
+      padding: 10px 20px;
+      border-bottom: 1px solid rgba(30,34,20,0.09);
+      align-items: center;
+    }
+    .trip-row.thead {
+      font-size: 9px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: #8a8f7a;
+      padding-bottom: 6px;
+    }
+    .trip-row:hover:not(.thead) { background: rgba(30,34,20,0.04); }
+    .trip-col { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 4px; font-size: 12px; color: #1e2214; }
+    .trip-col.km { font-weight: 700; text-align: right; color: #1e2214; font-size: 11px; }
+    .trip-col.kr { font-weight: 700; text-align: right; color: #d4673d; font-size: 11px; }
+    .trip-del { background: none; border: none; color: #aaa; cursor: pointer; font-size: 14px; text-align: right; padding: 0; line-height: 1; }
+    .trip-del:hover { color: #d4673d; }
+
+    .trip-empty { padding: 24px 20px; font-size: 12px; color: #8a8f7a; letter-spacing: 0.5px; }
+
+    .tfoot-row {
+      display: grid;
+      grid-template-columns: 76px 1fr 1fr 56px 70px 26px;
+      gap: 0;
+      padding: 12px 20px;
+      border-top: 2px solid rgba(30,34,20,0.2);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .tfoot-row .km { text-align: right; color: #1e2214; }
+    .tfoot-row .kr { text-align: right; color: #d4673d; }
+
+    /* ── MOBIL (iPhone 16 Pro = 393px) ── */
+    @media (max-width: 430px) {
+      .topbar, .hero, .rate-section, .quick-section,
+      .month-section, .form-section, .table-header-row { padding-left: 16px; padding-right: 16px; }
+
+      .hero-amount { font-size: 40px; }
+
+      .trip-row, .tfoot-row { padding-left: 16px; padding-right: 16px; }
+      .trip-row { grid-template-columns: 68px 1fr 1fr 50px 64px 22px; }
+      .tfoot-row { grid-template-columns: 68px 1fr 1fr 50px 64px 22px; }
+      .trip-col { font-size: 11px; }
+
+      .finput { font-size: 16px; /* eviter iOS zoom */ }
+      .finput.date-input { width: 100%; }
+      .form-line { flex-wrap: wrap; }
+      .form-line .flabel { flex: 0 0 28px; font-size: 9px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="topbar-label">Køreregnskab</div>
+    <div class="topbar-year" id="yearBadge">2026</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-sublabel">Samlet godtgørelse · året</div>
+    <div class="hero-amount" id="statYearKr">0,00<span> kr</span></div>
+    <div class="hero-rows">
+      <div class="hero-row">
+        <div class="hero-row-label">Km kørt i alt</div>
+        <div class="hero-row-val" id="statYearKm">0<span> km</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rate-section">
+    <div class="rate-label-row">
+      <span>Høj sats 3,94 kr/km</span>
+      <span id="barLabel">0 / 20.000 km</span>
+    </div>
+    <div class="rate-track"><div class="rate-fill" id="rateFill" style="width:0%"></div></div>
+  </div>
+
+  <div class="quick-section">
+    <div class="block-label">Hurtig registrering</div>
+    <div class="quick-btns">
+      <button class="quick-btn" onclick="addBygma()">Bygma</button>
+      <button class="quick-btn" onclick="addVP()">P-Kælder</button>
+      <button class="quick-btn" onclick="addVP2()">VP</button>
+    </div>
+  </div>
+
+  <div class="month-section">
+    <div class="block-label">Denne måned</div>
+    <div class="month-nav-row">
+      <div class="month-name" id="monthLabel">—</div>
+      <div class="nav-btns">
+        <button class="nav-btn" onclick="prevMonth()">&#8592;</button>
+        <button class="nav-btn" onclick="nextMonth()">&#8594;</button>
+      </div>
+    </div>
+    <div class="month-stats">
+      <div class="month-stat">
+        <div class="month-stat-label">Km</div>
+        <div class="month-stat-val" id="statMonthKm">0<span> km</span></div>
+      </div>
+      <div class="month-stat">
+        <div class="month-stat-label">Beløb</div>
+        <div class="month-stat-val" id="statMonthKr">0,00<span> kr</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="block-label dark">Tilføj tur manuelt</div>
+    <div class="form-row">
+      <!-- Dato -->
+      <div class="form-line">
+        <input class="finput date-input" type="date" id="fDate">
+      </div>
+      <!-- Fra -->
+      <div class="form-line">
+        <span class="flabel">Fra</span>
+        <input class="finput" type="text" id="fFromLabel" placeholder="Navn (fx Helsingør)">
+        <input class="finput" type="text" id="fFrom" placeholder="Adresse">
+      </div>
+      <!-- Til -->
+      <div class="form-line">
+        <span class="flabel">Til</span>
+        <input class="finput" type="text" id="fToLabel" placeholder="Navn (fx Bygma)">
+        <input class="finput" type="text" id="fTo" placeholder="Adresse">
+      </div>
+      <!-- Formål + Km + Tilføj -->
+      <div class="form-line">
+        <span class="flabel"></span>
+        <input class="finput" type="text" id="fPurpose" placeholder="Formål">
+        <input class="finput km-input" type="number" id="fKm" placeholder="Km" min="0" step="0.1">
+        <button class="btn-add" onclick="addManual()">+ Tilføj</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-header-row">
+      <div class="block-label dark" style="margin:0">Ture</div>
+      <button class="btn-export" onclick="exportMonth()">&#8595; Eksporter</button>
+    </div>
+    <div class="trip-row thead">
+      <div class="trip-col">Dato</div>
+      <div class="trip-col">Fra</div>
+      <div class="trip-col">Til</div>
+      <div class="trip-col km">Km</div>
+      <div class="trip-col kr">Kr</div>
+      <div></div>
+    </div>
+    <div id="tripBody"></div>
+    <div class="tfoot-row" id="tfoot" style="display:none">
+      <div></div>
+      <div style="font-size:9px;letter-spacing:1px;color:#8a8f7a;align-self:center">I ALT</div>
+      <div></div>
+      <div class="km" id="footKm"></div>
+      <div class="kr" id="footKr"></div>
+      <div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" style="
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:#1e2214; color:#c2c7b0; padding:11px 22px; border-radius:4px;
+  font-size:12px; font-weight:700; letter-spacing:0.5px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.25);
+  opacity:0; transition:opacity 0.25s, transform 0.25s; pointer-events:none; z-index:9999;
+"></div>
+
+<script>
+var RATE1=3.94, RATE2=2.28, THRESHOLD=20000;
+var MONTHS_DA=['Januar','Februar','Marts','April','Maj','Juni','Juli','August','September','Oktober','November','December'];
+var now=new Date(), viewYear=now.getFullYear(), viewMonth=now.getMonth();
+var memStore=null;
+
+function load(){
+  try{ var raw=localStorage.getItem('koreregnskab_v1'); if(raw) memStore=JSON.parse(raw); return memStore?JSON.parse(JSON.stringify(memStore)):[];} catch(e){return memStore?JSON.parse(JSON.stringify(memStore)):[];}
+}
+function save(trips){
+  memStore=JSON.parse(JSON.stringify(trips));
+  try{localStorage.setItem('koreregnskab_v1',JSON.stringify(trips));}catch(e){}
+}
+function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function pad(n){ return n<10?'0'+n:''+n; }
+function formatDate(s){ if(!s) return ''; var p=s.split('-'); return p[2]+'.'+p[1]+'.'+p[0]; }
+function uid(){ return Date.now()+'_'+Math.random().toString(36).slice(2,7); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function yearTrips(trips,y){
+  return trips.filter(function(t){return t.date&&t.date.startsWith(''+y);}).sort(function(a,b){return a.date.localeCompare(b.date);});
+}
+function recalcYear(trips,y){
+  var yt=yearTrips(trips,y),cum=0;
+  yt.forEach(function(t){
+    var km=parseFloat(t.km)||0,before=cum;
+    if(before>=THRESHOLD){t.kr=+(km*RATE2).toFixed(2);}
+    else{var over=Math.max(0,(before+km)-THRESHOLD);t.kr=+((km-over)*RATE1+over*RATE2).toFixed(2);}
+    cum+=km;
+  });
+}
+function fmtKm(n){return Math.round(n).toLocaleString('da-DK');}
+function fmtKr(n){return n.toLocaleString('da-DK',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+function updateAll(){
+  var trips=load();
+  var years={}; trips.forEach(function(t){if(t.date) years[t.date.split('-')[0]]=true;}); years[viewYear]=true;
+  Object.keys(years).forEach(function(y){recalcYear(trips,parseInt(y));});
+
+  var yt=yearTrips(trips,viewYear);
+  var totalKm=0,totalKr=0; yt.forEach(function(t){totalKm+=parseFloat(t.km)||0;totalKr+=t.kr||0;});
+
+  var mt=yt.filter(function(t){return parseInt(t.date.split('-')[1])-1===viewMonth;});
+  var monthKm=0,monthKr=0; mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
+
+  document.getElementById('yearBadge').textContent=viewYear;
+  document.getElementById('statYearKr').innerHTML=fmtKr(totalKr)+'<span> kr</span>';
+  document.getElementById('statYearKm').innerHTML=fmtKm(totalKm)+'<span> km</span>';
+  document.getElementById('statMonthKm').innerHTML=fmtKm(monthKm)+'<span> km</span>';
+  document.getElementById('statMonthKr').innerHTML=fmtKr(monthKr)+'<span> kr</span>';
+  document.getElementById('monthLabel').textContent=MONTHS_DA[viewMonth]+' '+viewYear;
+
+  var pct=Math.min(100,totalKm/THRESHOLD*100);
+  document.getElementById('rateFill').style.width=pct+'%';
+  document.getElementById('barLabel').textContent=fmtKm(Math.min(totalKm,THRESHOLD))+' / 20.000 km';
+
+  renderTable(mt,monthKm,monthKr);
+}
+
+function renderTable(mt,monthKm,monthKr){
+  var body=document.getElementById('tripBody'), tfoot=document.getElementById('tfoot');
+  if(!mt.length){
+    body.innerHTML='<div class="trip-empty">Ingen ture i denne måned</div>';
+    tfoot.style.display='none';
+  } else {
+    body.innerHTML=mt.map(function(t){
+      // Vis fromLabel hvis det findes, ellers from
+      var fra=esc(t.fromLabel||t.from||'');
+      var til=esc(t.toLabel||t.to||'');
+      return '<div class="trip-row">'+
+        '<div class="trip-col">'+formatDate(t.date)+'</div>'+
+        '<div class="trip-col">'+fra+'</div>'+
+        '<div class="trip-col">'+til+'</div>'+
+        '<div class="trip-col km">'+fmtKm(parseFloat(t.km)||0)+' km</div>'+
+        '<div class="trip-col kr">'+fmtKr(t.kr||0)+' kr</div>'+
+        '<div><button class="trip-del" onclick="deleteTrip(\''+t.id+'\')" title="Slet">&#10005;</button></div>'+
+      '</div>';
+    }).join('');
+    document.getElementById('footKm').textContent=fmtKm(monthKm)+' km';
+    document.getElementById('footKr').textContent=fmtKr(monthKr)+' kr';
+    tfoot.style.display='grid';
+  }
+}
+
+function prevMonth(){viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}updateAll();}
+function nextMonth(){viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}updateAll();}
+
+function addTrip(date,fromLabel,from,toLabel,to,purpose,km){
+  var trips=load();
+  trips.push({id:uid(),date:date,fromLabel:fromLabel,from:from,toLabel:toLabel,to:to,purpose:purpose,km:parseFloat(km)||0,kr:0});
+  recalcYear(trips,parseInt(date.split('-')[0]));
+  save(trips); updateAll();
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg; t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(20px)';},2500);
+}
+function goNow(){var n=new Date();viewYear=n.getFullYear();viewMonth=n.getMonth();}
+
+function addBygma(){
+  var d=todayStr();
+  addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Bygma','Transformervej 12, 2860 Søborg','Freelance',41);
+  addTrip(d,'Bygma','Transformervej 12, 2860 Søborg','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',41);
+  showToast('Bygma tilføjet · 82 km'); goNow(); updateAll();
+}
+function addVP(){
+  var d=todayStr();
+  addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','P-Kælder','Heimdalsgade 42, 2200 København N','Fremvisning',42);
+  addTrip(d,'P-Kælder','Heimdalsgade 42, 2200 København N','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',42);
+  showToast('P-Kælder tilføjet · 84 km'); goNow(); updateAll();
+}
+function addVP2(){
+  var d=todayStr();
+  addTrip(d,'Helsingør','Hollandskevej 6, 3000 Helsingør','Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Møde',37);
+  addTrip(d,'Charlottenlund','Enighedsvej 35A, 2920 Charlottenlund','Helsingør','Hollandskevej 6, 3000 Helsingør','Retur',37);
+  showToast('VP tilføjet · 74 km'); goNow(); updateAll();
+}
+
+function addManual(){
+  var date=document.getElementById('fDate').value;
+  var fromLabel=document.getElementById('fFromLabel').value.trim();
+  var from=document.getElementById('fFrom').value.trim();
+  var toLabel=document.getElementById('fToLabel').value.trim();
+  var to=document.getElementById('fTo').value.trim();
+  var purpose=document.getElementById('fPurpose').value.trim();
+  var km=parseFloat(document.getElementById('fKm').value);
+  if(!date||!from||!to||!km){alert('Udfyld dato, adresser og km.');return;}
+  addTrip(date,fromLabel||from,from,toLabel||to,to,purpose,km);
+  ['fFromLabel','fFrom','fToLabel','fTo','fPurpose','fKm'].forEach(function(id){document.getElementById(id).value='';});
+}
+
+function deleteTrip(id){
+  if(!confirm('Slet denne tur?')) return;
+  var trips=load().filter(function(t){return t.id!==id;});
+  var years={}; trips.forEach(function(t){if(t.date) years[t.date.split('-')[0]]=true;});
+  Object.keys(years).forEach(function(y){recalcYear(trips,parseInt(y));});
+  save(trips); updateAll();
+}
+
+function exportMonth(){
+  var trips=load(); recalcYear(trips,viewYear);
+  var mt=yearTrips(trips,viewYear).filter(function(t){return parseInt(t.date.split('-')[1])-1===viewMonth;});
+  if(!mt.length){alert('Ingen ture i '+MONTHS_DA[viewMonth]+' '+viewYear+'.');return;}
+  var monthKm=0,monthKr=0;
+  mt.forEach(function(t){monthKm+=parseFloat(t.km)||0;monthKr+=t.kr||0;});
+
+  var rows=[];
+  // Måneds-total øverst
+  rows.push(['Måned',MONTHS_DA[viewMonth]+' '+viewYear,'','','','','','']);
+  rows.push(['Samlet km',Math.round(monthKm).toString().replace('.',','),'','','','','','']);
+  rows.push(['Samlet kr',monthKr.toFixed(2).replace('.',','),'','','','','','']);
+  rows.push([]);
+  // Header
+  rows.push(['Dato','Fra','Fra adresse','Til','Til adresse','Formål','Km','Kroner']);
+  mt.forEach(function(t){
+    rows.push([
+      formatDate(t.date),
+      t.fromLabel||t.from||'',
+      t.from||'',
+      t.toLabel||t.to||'',
+      t.to||'',
+      t.purpose||'',
+      (parseFloat(t.km)||0).toString().replace('.',','),
+      (t.kr||0).toFixed(2).replace('.',',')
+    ]);
+  });
+  rows.push(['','','','','','I alt',Math.round(monthKm).toString(),monthKr.toFixed(2).replace('.',',')]);
+
+  var csv=rows.map(function(r){
+    return r.map(function(c){
+      var s=(c||'').toString();
+      if(s.indexOf(';')>-1||s.indexOf('"')>-1) s='"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }).join(';');
+  }).join('\r\n');
+
+  var blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8;'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  a.href=url; a.download='Koreregnskab_'+MONTHS_DA[viewMonth]+'_'+viewYear+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+document.getElementById('fDate').value=todayStr();
+updateAll();
+</script>
+</body>
+</html>
